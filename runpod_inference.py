@@ -18,6 +18,11 @@ model_obj = load_checkpoint(model_obj, ckpt_path, "cuda", use_ema=True)
 audio, sr = torchaudio.load(ref_audio)
 print(f"Original audio shape: {audio.shape}, sr: {sr}")
 
+# To fix duration truncation: F5TTS `fix_duration` expects the TOTAL duration (ref_len + gen_len).
+# We have a ~11s ref clip. Standard string length for Tamil is better than byte-length for duration checks.
+# We'll allow roughly 10s of generation time for this sentence. Total = 21s.
+calc_duration = 21.0 
+
 try:
     final_wave, sr, spect = infer_batch_process(
         (audio, sr),
@@ -27,10 +32,10 @@ try:
         vocoder,
         mel_spec_type="vocos",
         device="cuda",
-        fix_duration=None  # Force duration to 22 seconds
+        fix_duration=calc_duration
     )
     print("Success! Final wave shape:", final_wave.shape)
-    torchaudio.save("/workspace/IndicF5/finetuned_test_2.wav", torch.tensor(final_wave).unsqueeze(0), sr)
+    torchaudio.save("/workspace/IndicF5/finetuned_test_4.wav", torch.tensor(final_wave).unsqueeze(0), sr)
 except Exception as e:
     import traceback
     traceback.print_exc()
