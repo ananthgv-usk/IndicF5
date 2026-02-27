@@ -40,9 +40,29 @@ try:
     )
     print("Success! Final wave shape:", final_wave.shape)
     
-    # Save safely to the local working directory (samples/ folder) instead of absolute linux root
+    # --- Post-processing: Normalize volume to prevent uneven tone ---
+    import numpy as np
+    wave = np.array(final_wave, dtype=np.float32)
+    
+    # 1. Peak normalization: scale so the loudest point hits 0.95
+    peak = np.max(np.abs(wave))
+    if peak > 0:
+        wave = wave / peak * 0.95
+    
+    # 2. RMS-based loudness leveling (target -20 dBFS)
+    rms = np.sqrt(np.mean(wave ** 2))
+    target_rms = 10 ** (-20 / 20)  # -20 dBFS
+    if rms > 0:
+        gain = target_rms / rms
+        wave = wave * gain
+        # Clip to prevent distortion
+        wave = np.clip(wave, -1.0, 1.0)
+    
+    print(f"Normalized: peak={np.max(np.abs(wave)):.3f}, rms={np.sqrt(np.mean(wave**2)):.4f}")
+    
+    # Save safely to the local working directory (samples/ folder)
     os.makedirs("samples", exist_ok=True)
-    torchaudio.save("samples/runpod_finetuned_test.wav", torch.tensor(final_wave).unsqueeze(0), sr)
+    torchaudio.save("samples/runpod_finetuned_test.wav", torch.tensor(wave).unsqueeze(0), sr)
 except Exception as e:
     import traceback
     traceback.print_exc()
