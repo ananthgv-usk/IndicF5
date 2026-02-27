@@ -185,3 +185,7 @@ samples/v2_jadavulagu.wav
 .gitignore
 samples/finetuned_final.wav
 samples/v2_50epoch.wav
+samples/v3_jadavulagu.wav
+.gitignore
+samples/v3_vedham.wav
+samples/v3_mangalam.wav
