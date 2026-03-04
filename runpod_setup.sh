@@ -233,20 +233,16 @@ ref_audio = 'custom_prompts/tamil_male_reference_clipped.wav'
 # Added a period at the end to force the model to create a clean pause, preventing audio spillover
 ref_text = 'அந்தக் கிராமத்துல ஒரு சின்ன பையன் இருந்தான் அவன் பேரு கண்ணன் கண்ணனுக்கு எப்பவும் புதுசு புதுசா ஏதாச்சும் கத்துக்கணும்னு ரொம்ப ஆசை.'
 audio, sr = torchaudio.load(ref_audio)
-# PADDING: Add 0.5s of silence to the end of the reference audio to absorb any generation spillover
-audio = torch.cat([audio, torch.zeros(1, int(sr * 0.5))], dim=1)
 os.makedirs('samples', exist_ok=True)
 
 sentences = [
     ('வேதாந்தத்தின் உண்மையான சாரத்தை வழங்கும் ஞானம்தான் மிக உயர்ந்த சுபமான சித்தாந்தம்.', 'v4_vedham_single_sentence.wav'),
 ]
-ref_samples = audio.shape[1]  # kept for reference only — NOT used for trimming
 for gen_text, filename in sentences:
     print(f'Generating: {filename}...')
-    import librosa
     
-    # TEXT CHUNKING: Reverted to V11 logic - splitting only by sentences (periods)
-    text_chunks = [s.strip() + '.' for s in gen_text.split('. ') if s.strip()]
+    # TEXT CHUNKING: Split the text by sentences. 
+    text_chunks = [s.strip() for s in gen_text.split('. ') if s.strip()]
     
     clean_waves = []
     final_sr = target_sample_rate
@@ -256,21 +252,17 @@ for gen_text, filename in sentences:
         final_wave, out_sr, spect = infer_batch_process((audio, sr), ref_text, [chunk], model_obj, vocoder, mel_spec_type='vocos', device='cuda', fix_duration=None, speed=0.8)
         wave = np.array(final_wave, dtype=np.float32)
         final_sr = out_sr
-        
-        # Trim the bleed uniquely from EACH chunk using V11 librosa VAD logic
-        intervals = librosa.effects.split(wave, top_db=30)
-        if len(intervals) > 1:
-            clean_start = intervals[1][0]
-            wave = wave[clean_start:]
-        
         clean_waves.append(wave)
     
-    # Manually concatenate chunks with a 0.3s pause in between
-    pause = np.zeros(int(final_sr * 0.3), dtype=np.float32)
-    combined_wave = clean_waves[0]
-    for w in clean_waves[1:]:
-        combined_wave = np.concatenate([combined_wave, pause, w])
-
+    # Concatenate chunks with a 0.3s pause in between if multiple chunks exist
+    if len(clean_waves) > 1:
+        pause = np.zeros(int(final_sr * 0.3), dtype=np.float32)
+        combined_wave = clean_waves[0]
+        for w in clean_waves[1:]:
+            combined_wave = np.concatenate([combined_wave, pause, w])
+    else:
+        combined_wave = clean_waves[0]
+    
     peak = np.max(np.abs(combined_wave))
     if peak > 0: combined_wave = combined_wave / peak * 0.95
     torchaudio.save(f'samples/{filename}', torch.tensor(combined_wave).unsqueeze(0), final_sr)
