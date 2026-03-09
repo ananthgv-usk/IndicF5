@@ -429,20 +429,12 @@ def infer_batch_process(
     if sr != target_sample_rate:
         resampler = torchaudio.transforms.Resample(sr, target_sample_rate)
         audio = resampler(audio)
-        
-    # Pad the reference audio with 0.3s of silence to absorb early generation spillover natively
-    silence = torch.zeros(1, int(target_sample_rate * 0.3), dtype=audio.dtype)
-    audio = torch.cat([audio, silence], dim=1)
-    
     audio = audio.to(device)
 
     generated_waves = []
     spectrograms = []
 
-    # Ensure reference text ends with proper punctuation and spacing for semantic boundary
-    if not ref_text.endswith((".", "!", "?", ",", "।", " ")):
-        ref_text = ref_text + ". "
-    elif not ref_text.endswith(" "):
+    if len(ref_text[-1].encode("utf-8")) == 1:
         ref_text = ref_text + " "
     # for i, gen_text in enumerate(progress.tqdm(gen_text_batches)):
     for i, gen_text in enumerate(gen_text_batches):
