@@ -1,0 +1,37 @@
+# IndicF5 Tamil Voice Cloning - Inference Instructions
+
+This repository contains the fine-tuned IndicF5 model for generating high-quality Tamil voice clones.
+
+## Prerequisites
+
+1. Ensure you have the repository cloned and your Python virtual environment activated:
+   ```bash
+   source venv/bin/activate
+   ```
+2. The necessary packages (`f5-tts`, `torch`, `torchaudio`, `huggingface_hub`, etc.) should be installed from requirements.txt.
+
+## Running Local Inference
+
+To generate audio locally on your machine (using Apple Silicon MPS, CUDA, or CPU):
+
+1. Place your target 15-second reference audio file (.wav) into the `custom_prompts/` directory. Be sure the audio contains clean speech of the target voice.
+2. Open `local_inference.py` in your text editor.
+3. Update the `ref_audio_path` variable to point to your reference `.wav` file.
+4. Update the `ref_text` variable with the **exact** Tamil text that is spoken in your reference audio.
+5. In the `sentences` list at the bottom of the script, provide the Tamil text you want the model to generate, along with the desired output filename. For example:
+   ```python
+   sentences = [
+       ('இவ் உயிர் மூலமாய் வெளிப்பட்டு ஏங்குவதன் ஒரே காரணம் நீயே நானாகும் நிலையை..', 'my_custom_output.wav')
+   ]
+   ```
+6. Run the script:
+   ```bash
+   python local_inference.py
+   ```
+
+*Note: The script is configured to automatically download the fine-tuned model (`model_last.pt`) and custom vocabulary (`vocab.txt`) directly from the `kailasa-ngpt/IndicF5-Tamil-Finetuned` Hugging Face repository on its first run.*
+
+## Important Notes on Tamil vs. Sanskrit Generation
+
+- **Tamil Text (Native Script)**: The model was heavily fine-tuned on native Tamil characters. Supplying pure Tamil Unicode text to the prompt guarantees the best, most natural pronunciation.
+- **Transliterated Sanskrit (English/Roman Letters)**: Do **not** pass English or ASCII transliterated text (like "sattva nurupa sarvasya") to the model. The underlying F5-TTS architecture cannot correctly synthesize transliterated Sanskrit text and will output heavily distorted or robotic audio. Always convert foreign phrases to native Tamil script before running inference.
