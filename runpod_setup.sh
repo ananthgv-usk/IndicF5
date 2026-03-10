@@ -274,8 +274,8 @@ print('All inference done!')
 python3 -c "
 from huggingface_hub import HfApi
 api = HfApi(token='$HF_TOKEN')
-api.upload_file(path_or_fileobj='$CKPT_PATH', path_in_repo='model_last.pt', repo_id='ananthgv-usk/IndicF5-Tamil-Finetuned', commit_message='Round 4: 25 epochs, 300 broader Tamil+Sanskrit samples, correct 2545-token vocab')
-api.upload_file(path_or_fileobj='/workspace/IndicF5/custom_dataset_pinyin/vocab.txt', path_in_repo='vocab.txt', repo_id='ananthgv-usk/IndicF5-Tamil-Finetuned', commit_message='Vocab (2545 tokens)')
+api.upload_file(path_or_fileobj='$CKPT_PATH', path_in_repo='model_last.pt', repo_id='kailasa-ngpt/IndicF5-Tamil-Finetuned', commit_message='Round 4: 25 epochs, 300 broader Tamil+Sanskrit samples, correct 2545-token vocab')
+api.upload_file(path_or_fileobj='/workspace/IndicF5/custom_dataset_pinyin/vocab.txt', path_in_repo='vocab.txt', repo_id='kailasa-ngpt/IndicF5-Tamil-Finetuned', commit_message='Vocab (2545 tokens)')
 print('HF UPLOAD COMPLETE!')
 "
 

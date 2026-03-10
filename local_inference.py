@@ -17,8 +17,8 @@ print(f"Using compute device: {device}")
 
 # Download the model and vocab from our Hugging Face repo
 print("Downloading finetuned model and vocab from Hugging Face...")
-ckpt_path = hf_hub_download(repo_id='ananthgv-usk/IndicF5-Tamil-Finetuned', filename='model_last.pt')
-vocab_file = hf_hub_download(repo_id='ananthgv-usk/IndicF5-Tamil-Finetuned', filename='vocab.txt')
+ckpt_path = hf_hub_download(repo_id='kailasa-ngpt/IndicF5-Tamil-Finetuned', filename='model_last.pt')
+vocab_file = hf_hub_download(repo_id='kailasa-ngpt/IndicF5-Tamil-Finetuned', filename='vocab.txt')
 
 # Load components
 print("Loading model and vocoder...")
