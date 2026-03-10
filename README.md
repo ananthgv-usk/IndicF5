@@ -1,33 +1,55 @@
-# **IndicF5: High-Quality Text-to-Speech for Indian Languages**
+# **IndicF5: Tamil Voice Cloning**
 
-[![Hugging Face](https://img.shields.io/badge/HuggingFace-Model-orange)](https://huggingface.co/ai4bharat/IndicF5)
+This repository contains the fine-tuned IndicF5 model for generating high-quality Tamil voice clones, heavily trained on Swamiji's speech and native Tamil script.
 
-
-We release **IndicF5**, a **near-human polyglot** **Text-to-Speech (TTS)** model trained on **1417 hours** of high-quality speech from **[Rasa](https://huggingface.co/datasets/ai4bharat/Rasa), [IndicTTS](https://www.iitm.ac.in/donlab/indictts/database), [LIMMITS](https://sites.google.com/view/limmits24/), and [IndicVoices-R](https://huggingface.co/datasets/ai4bharat/indicvoices_r)**.  
-
-IndicF5 supports **11 Indian languages**:  
-**Assamese, Bengali, Gujarati, Hindi, Kannada, Malayalam, Marathi, Odia, Punjabi, Tamil, Telugu.**  
+[![Hugging Face](https://img.shields.io/badge/HuggingFace-Model-orange)](https://huggingface.co/kailasa-ngpt/IndicF5-Tamil-Finetuned)
 
 ---
 
-## 🚀 Installation
-```bash
-conda create -n indicf5 python=3.10 -y
-conda activate indicf5
-pip install git+https://github.com/ai4bharat/IndicF5.git
-```
+## 🚀 Installation & Prerequisites
 
+1. Ensure you have the repository cloned and your Python virtual environment activated:
+   ```bash
+   source venv/bin/activate
+   ```
+2. The necessary packages (`f5-tts`, `torch`, `torchaudio`, `huggingface_hub`, etc.) should be installed from `requirements.txt`.
 
-## 🎙 Usage
+---
 
-To generate speech, you need to provide **three inputs**:
-1. **Text to synthesize** – The content you want the model to speak.
-2. **A reference prompt audio** – An example speech clip that guides the model’s prosody and speaker characteristics.
-3. **Text spoken in the reference prompt audio** – The transcript of the reference prompt audio.
+## 🎙️ Running Local Inference
 
+To generate audio locally on your machine (using Apple Silicon MPS, CUDA, or CPU):
 
-```python
-from transformers import AutoModel
+1. Place your target 15-second reference audio file (`.wav`) into the `custom_prompts/` directory. Be sure the audio contains clean speech of the target voice.
+2. Open `local_inference.py` in your text editor.
+3. Update the `ref_audio_path` variable to point to your reference `.wav` file.
+4. Update the `ref_text` variable with the **exact** Tamil text that is spoken in your reference audio.
+5. In the `sentences` list at the bottom of the script, provide the Tamil text you want the model to generate, along with the desired output filename. For example:
+   ```python
+   sentences = [
+       ('இவ் உயிர் மூலமாய் வெளிப்பட்டு ஏங்குவதன் ஒரே காரணம் நீயே நானாகும் நிலையை..', 'my_custom_output.wav')
+   ]
+   ```
+6. Run the script:
+   ```bash
+   python local_inference.py
+   ```
+
+*Note: The script is configured to automatically download the fine-tuned model (`model_last.pt`) and custom vocabulary (`vocab.txt`) directly from the `kailasa-ngpt/IndicF5-Tamil-Finetuned` Hugging Face repository on its first run.*
+
+---
+
+## ⚠️ Important Notes on Tamil vs. Sanskrit Generation
+
+- **Tamil Text (Native Script)**: The model was heavily fine-tuned on native Tamil characters. Supplying pure Tamil Unicode text to the prompt guarantees the best, most natural pronunciation.
+- **Transliterated Sanskrit (English/Roman Letters)**: Do **not** pass English or ASCII transliterated text (like "sattva nurupa sarvasya") to the model. The underlying F5-TTS architecture cannot correctly synthesize transliterated Sanskrit text and will output heavily distorted or robotic audio. Always convert foreign phrases to native Tamil script before running inference.
+
+---
+
+## 👇 Original IndicF5 Project Information
+
+*Below is the original upstream documentation for the base IndicF5 project.*
+
 import numpy as np
 import soundfile as sf
 
